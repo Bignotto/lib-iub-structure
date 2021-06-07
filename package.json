@@ -11,6 +11,7 @@
     "server": "json-server src/roteiros.json -p 3333"
   },
   "dependencies": {
+    "json-2-csv": "^3.14.0",
     "lowdb": "github:dankreiger/lowdb#chore/esm-cjs-hybrid-WITH-LIB"
   },
   "devDependencies": {

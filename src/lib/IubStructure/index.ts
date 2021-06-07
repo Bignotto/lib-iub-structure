@@ -29,12 +29,12 @@ export default class IubStructure {
 
     console.log(`starting item ${safeCode} in level ${level}`);
 
-    // [] filter inputs by ItemPaiRoteiro
+    // [x] filter inputs by ItemPaiRoteiro
     const productStruct = this.inputs.filter(
       line => line.ItemPaiRoteiro === safeCode
     );
 
-    // [] for each
+    // [x] for each
     productStruct.forEach(line => {
       const newLine: StructLine = {
         id: struct.length + 1,
@@ -43,10 +43,6 @@ export default class IubStructure {
         InsumoPreco: 1,
         ...line,
       };
-      // [ ] get input price
-      // [x] check input type
-      // [x] make service quantity always
-      // [ ] cost cant be less de 0.01
 
       if (line.TipoLinha === "SERVICO") newLine.InsumoQuantidade = 1;
 
