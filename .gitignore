@@ -42,3 +42,4 @@ yarn.lock
 
 # ignore data files
 src/data/inputs_data.json
+src/data/prices_data.json

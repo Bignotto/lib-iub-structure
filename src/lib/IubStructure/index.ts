@@ -1,15 +1,21 @@
 import { Low, JSONFile } from "lowdb";
 import { InputLine } from "./models/IInputLine";
+import { InputPrice } from "./models/IPrice";
 import { StructLine } from "./models/IStructLine";
 
 type IIubStructure = {
   inputLine: InputLine[];
 };
 
+type IPricesList = {
+  inputPrices: InputPrice[];
+};
+
 export default class IubStructure {
   public inputs: InputLine[];
+  public prices: InputPrice[];
 
-  private async load(datafile: string): Promise<InputLine[]> {
+  private async loadStructData(datafile: string): Promise<InputLine[]> {
     const adapter = new JSONFile<IIubStructure>(datafile);
     const inputs_file = new Low<IIubStructure>(adapter);
 
@@ -17,9 +23,21 @@ export default class IubStructure {
     return inputs_file.data?.inputLine ?? [];
   }
 
-  public static CreateIubStructure = async (datafile: string) => {
+  private async loadPricesData(pricesDataFile: string): Promise<InputPrice[]> {
+    const adapter = new JSONFile<IPricesList>(pricesDataFile);
+    const prices_file = new Low<IPricesList>(adapter);
+
+    await prices_file.read();
+    return prices_file.data?.inputPrices ?? [];
+  }
+
+  public static CreateIubStructure = async (
+    structDataFile: string,
+    pricesDataFile: string
+  ) => {
     const iub = new IubStructure();
-    iub.inputs = await iub.load(datafile);
+    iub.inputs = await iub.loadStructData(structDataFile);
+    iub.prices = await iub.loadPricesData(pricesDataFile);
     return iub;
   };
 
@@ -29,24 +47,35 @@ export default class IubStructure {
 
     console.log(`starting item ${safeCode} in level ${level}`);
 
-    // [] filter inputs by ItemPaiRoteiro
+    // [x] filter inputs by ItemPaiRoteiro
     const productStruct = this.inputs.filter(
       line => line.ItemPaiRoteiro === safeCode
     );
 
-    // [] for each
+    // [x] for each
     productStruct.forEach(line => {
+      const [inputPrice] = this.prices.filter(
+        itemPrice => itemPrice.Item === line.Insumo
+      );
+
+      let InsumoCusto = 0;
+      let InsumoPreco = 0;
+
+      if (inputPrice) {
+        InsumoPreco = inputPrice.UltimoPreco;
+        InsumoCusto =
+          line.TipoLinha === "SERVICO"
+            ? inputPrice.UltimoPreco
+            : inputPrice.UltimoPreco * line.InsumoQuantidade;
+      }
+
       const newLine: StructLine = {
         id: struct.length + 1,
         level,
-        InsumoCusto: 1, //TODO: get prices from somewhere
-        InsumoPreco: 1,
+        InsumoCusto,
+        InsumoPreco,
         ...line,
       };
-      // [ ] get input price
-      // [x] check input type
-      // [x] make service quantity always
-      // [ ] cost cant be less de 0.01
 
       if (line.TipoLinha === "SERVICO") newLine.InsumoQuantidade = 1;
 
