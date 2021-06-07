@@ -1,5 +1,6 @@
 import { Low, JSONFile } from "lowdb";
 import { InputLine } from "./models/IInputLine";
+import { StructLine } from "./models/IStructLine";
 
 type IIubStructure = {
   inputLine: InputLine[];
@@ -21,4 +22,54 @@ export default class IubStructure {
     iub.inputs = await iub.load(datafile);
     return iub;
   };
+
+  public getIubStructBySap(sapCode: string, level = 0): StructLine[] {
+    const safeCode = sapCode.toUpperCase();
+    let struct: StructLine[] = [];
+
+    console.log(`starting item ${safeCode} in level ${level}`);
+
+    // [] filter inputs by ItemPaiRoteiro
+    const productStruct = this.inputs.filter(
+      line => line.ItemPaiRoteiro === safeCode
+    );
+
+    // [] for each
+    productStruct.forEach(line => {
+      const newLine: StructLine = {
+        id: struct.length + 1,
+        level,
+        InsumoCusto: 1, //TODO: get prices from somewhere
+        InsumoPreco: 1,
+        ...line,
+      };
+      // [ ] get input price
+      // [x] check input type
+      // [x] make service quantity always
+      // [ ] cost cant be less de 0.01
+
+      if (line.TipoLinha === "SERVICO") newLine.InsumoQuantidade = 1;
+
+      struct.push(newLine);
+
+      if (line.TipoLinha === "SUB") {
+        const subStruct = this.getIubStructBySap(line.Insumo, level + 1);
+
+        const subStructToSum = subStruct.filter(
+          subLine => subLine.level === level + 1
+        );
+        const subCostsList = subStructToSum.map(subLine => subLine.InsumoCusto);
+        const subTotalCost = subCostsList.reduce(
+          (acc, value) => acc + value,
+          0
+        );
+        struct[struct.length - 1].InsumoCusto =
+          subTotalCost * newLine.InsumoQuantidade;
+
+        struct = struct.concat(subStruct);
+      }
+    });
+
+    return struct;
+  }
 }
