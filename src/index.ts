@@ -12,16 +12,21 @@ const load = async () => {
 
   iubStruct = await IubStructure.CreateIubStructure(inputs_file, prices_file);
 
-  const struct = iubStruct.getIubStructBySap("I02542");
+  const list = ["i02542", "i01384", "i01441"];
 
-  const csvString = await json2csvAsync(struct, {
-    delimiter: {
-      field: ";",
-    },
-    excelBOM: true,
+  list.forEach(async item => {
+    const struct = iubStruct.getIubStructBySap(item);
+
+    const csvString = await json2csvAsync(struct, {
+      delimiter: {
+        field: ";",
+      },
+      excelBOM: true,
+    });
+
+    await fs.writeFile(`${item.toUpperCase()}.csv`, csvString, "utf-8");
   });
 
-  await fs.writeFile("output.csv", csvString, "utf-8");
   return;
 };
 

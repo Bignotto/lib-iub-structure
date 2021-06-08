@@ -45,8 +45,6 @@ export default class IubStructure {
     const safeCode = sapCode.toUpperCase();
     let struct: StructLine[] = [];
 
-    console.log(`starting item ${safeCode} in level ${level}`);
-
     // [x] filter inputs by ItemPaiRoteiro
     const productStruct = this.inputs.filter(
       line => line.ItemPaiRoteiro === safeCode
