@@ -85,18 +85,32 @@ export default class IubStructure {
         const subStructToSum = subStruct.filter(
           subLine => subLine.level === level + 1
         );
-        const subCostsList = subStructToSum.map(subLine => subLine.InsumoCusto);
+
+        const subCostsList = subStructToSum.map(subLine =>
+          subLine.InsumoUnidade === "DZ"
+            ? Number(subLine.InsumoCusto) / 12
+            : Number(subLine.InsumoCusto)
+        );
+
         const subTotalCost = subCostsList.reduce(
           (acc, value) => acc + value,
           0
         );
+
         struct[struct.length - 1].InsumoCusto =
           subTotalCost * newLine.InsumoQuantidade;
+        struct[struct.length - 1].InsumoPreco = subTotalCost;
 
         struct = struct.concat(subStruct);
       }
     });
 
     return struct;
+  }
+
+  public getInputsWithoutPrices(): InputPrice[] {
+    const pricesZero = this.prices.filter(price => price.UltimoPreco === null);
+    //console.log({ pricesZero });
+    return pricesZero;
   }
 }
