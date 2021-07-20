@@ -8,9 +8,11 @@
   "type": "module",
   "scripts": {
     "vai": "ts-node-dev src/index.ts",
+    "csv": "ts-node-dev src/indexCsv.ts",
     "server": "json-server src/roteiros.json -p 3333"
   },
   "dependencies": {
+    "csvtojson": "^2.0.10",
     "json-2-csv": "^3.14.0",
     "lowdb": "github:dankreiger/lowdb#chore/esm-cjs-hybrid-WITH-LIB"
   },
