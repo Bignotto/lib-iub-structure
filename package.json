@@ -9,6 +9,7 @@
   "scripts": {
     "vai": "ts-node-dev src/index.ts",
     "csv": "ts-node-dev src/indexCsv.ts",
+    "csv2": "ts-node-dev src/indexCsv2.ts",
     "server": "json-server src/roteiros.json -p 3333"
   },
   "dependencies": {
