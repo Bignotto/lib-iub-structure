@@ -3,8 +3,16 @@ import fs from "fs/promises";
 import { json2csvAsync } from "json-2-csv";
 
 import IubStructure from "./lib/IubStructure";
+import { StructLine } from "lib/IubStructure/models/IStructLine";
 
 var iubStruct: IubStructure;
+
+type Structures = StructLine & { productCode: string };
+
+// {
+//   itemSapCode: string;
+//   itemStruct: StructLine[];
+// };
 
 const load = async () => {
   const inputs_file = path.resolve(__dirname, "data", "roteiros.csv");
@@ -213,30 +221,38 @@ const load = async () => {
     "I09491",
   ];
 
+  let structs: Structures[] = [];
+
   list.forEach(async item => {
     const struct = iubStruct.getIubStructBySap(item);
 
-    const csvString = await json2csvAsync(struct, {
-      delimiter: {
-        field: ";",
-      },
-      excelBOM: true,
+    struct.map(line => {
+      structs.push({
+        ...line,
+        productCode: item.toUpperCase(),
+      });
     });
-
-    const outputFile = path.resolve(outputPath, `${item.toUpperCase()}.csv`);
-    await fs.writeFile(outputFile, csvString, "utf-8");
-    console.log(`Struct of item ${item} in file ${outputFile}`);
   });
 
-  const inputsWithoutPrices = iubStruct.getInputsWithoutPrices();
-  const csvString = await json2csvAsync(inputsWithoutPrices, {
+  const csvString = await json2csvAsync(structs, {
     delimiter: {
       field: ";",
     },
     excelBOM: true,
   });
 
-  await fs.writeFile(`without_prices.csv`, csvString, "utf-8");
+  const outputFile = path.resolve(outputPath, `estruturas.csv`);
+  await fs.writeFile(outputFile, csvString, "utf-8");
+
+  //   const inputsWithoutPrices = iubStruct.getInputsWithoutPrices();
+  //   const csvString = await json2csvAsync(inputsWithoutPrices, {
+  //     delimiter: {
+  //       field: ";",
+  //     },
+  //     excelBOM: true,
+  //   });
+
+  //   await fs.writeFile(`without_prices.csv`, csvString, "utf-8");
 
   return;
 };
