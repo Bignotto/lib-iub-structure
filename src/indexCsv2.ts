@@ -11,22 +11,13 @@ var iubStruct: IubStructure
 
 type Structures = StructLine & { productCode: string }
 
-// {
-//   itemSapCode: string;
-//   itemStruct: StructLine[];
-// };
-
 const load = async () => {
   const inputs_file = path.resolve(__dirname, "data", "roteiros.csv")
   const prices_file = path.resolve(__dirname, "data", "precos.csv")
 
   const outputPath = path.resolve(__dirname, "output")
 
-  console.log("iubstruct ok")
   iubStruct = await IubStructure.CreateIubStructureCSV(inputs_file, prices_file)
-
-  // TODO: read product list from file
-  //const list = ["i02542", "i01384", "i01441"];
 
   let structs: Structures[] = []
 
