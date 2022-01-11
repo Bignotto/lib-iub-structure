@@ -3,13 +3,26 @@ import fs from "fs/promises";
 import { json2csvAsync } from "json-2-csv";
 
 import IubStructure from "./lib/IubStructure";
-import { StructLine } from "lib/IubStructure/models/IStructLine";
 
 import { list } from "./products2022";
 
 var iubStruct: IubStructure;
 
-type Structures = StructLine & { productCode: string };
+//type Structures = StructLine & { productCode: string };
+interface Structures {
+  level: number;
+  ItemPaiIub: string;
+  InsumoCusto: number;
+  InsumoPreco: number;
+  DescricaoItem: string;
+  Insumo: string;
+  InsumoQuantidade: number;
+  InsumoDescricao: string;
+  InsumoTipoProduto: string;
+  TipoLinha: string;
+  productCode: string;
+  productIub: string;
+}
 
 const load = async () => {
   const inputs_file = path.resolve(__dirname, "data", "roteiros.csv");
@@ -27,11 +40,23 @@ const load = async () => {
   list.forEach(async (item) => {
     const struct = iubStruct.getIubStructBySap(item);
 
-    struct.map((line) => {
+    struct.forEach((line) => {
+      //if (line.Insumo !== null) {
       structs.push({
-        ...line,
+        level: line.level,
+        ItemPaiIub: line.ItemPaiIub,
+        InsumoCusto: line.InsumoCusto,
+        InsumoPreco: line.InsumoPreco,
+        DescricaoItem: line.DescricaoItem,
+        Insumo: line.Insumo,
+        InsumoQuantidade: line.InsumoQuantidade,
+        InsumoDescricao: line.InsumoDescricao,
+        InsumoTipoProduto: line.InsumoTipoProduto,
+        TipoLinha: line.TipoLinha,
         productCode: item.toUpperCase(),
+        productIub: struct[0].ItemPaiIub,
       });
+      //}
     });
   });
 
